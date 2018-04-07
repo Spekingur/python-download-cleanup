@@ -1,5 +1,27 @@
 # Download Cleanup
 
+Internet Pirates, i.e. the people that download movies and shows, often have a folder on their computer that temporarily stores the files that they are currently downloading. This temporary storage can become a little bit more permanent than intended at first, and they end up with a huge directory that no sane man would ever want to go through and categorize.
+
+Your task is to write a Python script that goes through a download folder and categorizes it (or sorts it out), by moving the files in the download folder to their appropriate directory.
+
+Suppose your script is called clean.py (you can choose the name, of course). In this assignment you are required to implement a script that can be called as follows.
+
+    python3 clean.py /path/to/download/folder /path/to/structured/folder
+
+This call should find as many episodes in the download folder as possible and move them to a new "structured" folder. Suppose the structured folder is called target. In that case, an episode of a given show should be moved to a subfolder of target whose name is the title of the show. If that folder does not exist, it is created. If it is possible to determine which season the episode belongs to, it should be moved to a subfolder of the show's folder, dedicated to episodes of that season. If that folder does not exist, it is created.
+
+Suppose the script comes across the file the.big.bang.theory.s05e05.hdtv.xvid-fqm.avi inside the download folder. We can determine from the name of the episode, that it is episode 5 from season 5 of The Big Bang Theory. The file should therefore be moved to:
+
+    target/The Big Bang Theory/Season 05/the.big.bang.theory.s05e05.hdtv.xvid-fqm.avi
+
+When moving files to the target folder, these naming rules should be followed:
+
+* The name of the show folder (in this case The Big Bang Theory) should contain no punctuations (no periods, apostrophes, etc.) and its words should be separated by a single space.
+* The name of the season folder should be Season [number] where [number] is the season number, zero padded to two places. Therefore an episode in season 4 should be in the folder Season 04 and an episode in season 12 in the folder Season 12.
+* The name of the file can be kept as it or you can rename the files to anything you like.
+
+The download folder used to test your solutions on the server can be found here.
+
 ## Grading
 
 Your solutions will be automatically assessed by an online server. The server will score your solutions on a scale from 0 to 100. The score is calculated as a ratio between the correctly categorized shows and the total number of shows, with penalties for moving the wrong files or moving files to the wrong location. After running your script, the server will categorize each file in the target folder into one of these categories.
