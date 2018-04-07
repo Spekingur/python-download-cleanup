@@ -1,0 +1,7 @@
+For detecting season
+
+((S|s)(eason|EASON))[0-9]
+
+For detecting episode
+
+((E|e)(pisode|PISODE))[0-9]
