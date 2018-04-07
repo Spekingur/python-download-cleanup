@@ -17,11 +17,15 @@ video_pattern = "(.mp4|.avi|.mkv|.wmv|.flv)$"
 for root, dirs, files in os.walk(src):
     for name in files:
         name = str(name)
-        path_from = os.path.realpath(os.path.join(root, name))
-        path_to = os.path.realpath(os.path.join(dest, name))
+        path_from = os.path.join(root, name)
+        path_to = os.path.join(dest, name)
+        if not os.path.exists(path_to):
+            os.makedirs(path_to)
         pf_lower = path_from.lower()
         if re.search(video_pattern, pf_lower):
             if re.search('s[0-9]{2}', pf_lower) or re.search(
                     'season( )*[0-9]+', pf_lower):
-                shutil.move(path_from, path_to)
+                #shutil.move(path_from, path_to)
                 #shutil.copytree(path_from, path_to)
+                print(path_from)
+                print(path_to)
