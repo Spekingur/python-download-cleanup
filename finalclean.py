@@ -77,6 +77,7 @@ def seasonDirWalk(season_list):
 ### PATTERNS ###
 video_pattern = "(.mp4|.avi|.mkv|.wmv|.flv)$"
 season_pattern = '(s[0-9]{1,2}|(season|sería|seria)( )*[0-9]+)'
+tv_pattern = ''
 
 ### MAIN CODE ###
 # Splitting src and dest for later use
@@ -102,5 +103,5 @@ for root, dirs, files in os.walk(src):
                 if not os.path.exists(path_to):
                     os.makedirs(path_to)
                 if not os.path.isfile(os.path.join(path_to, name)):
-                    shutil.copy(path_from, path_to)
-                    #shutil.move(path_from, path_to)
+                    #shutil.copy(path_from, path_to)
+                    shutil.move(path_from, path_to)
