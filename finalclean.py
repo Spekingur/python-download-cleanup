@@ -1,3 +1,4 @@
+#!/bin/bash
 # Download cleanup script
 # Authors:
 # Hreiðar Ólafur Arnarsson, hreidara14@ru.is
