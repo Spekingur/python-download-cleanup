@@ -39,6 +39,8 @@ def findTVname(path):
             break
         if each:
             tvname.append(each)
+    if not tvname:
+        tvname = ['test']
     final_tvname = ' '.join(tvname).title()
     return final_tvname
 
@@ -75,14 +77,16 @@ def seasonDirWalk(season_list):
 
 
 ### PATTERNS ###
-video_pattern = "(.mp4|.avi|.mkv|.wmv|.flv)$"
+video_pattern = '(.mp4|.avi|.mkv|.wmv|.flv)$'
 season_pattern = '(s[0-9]{1,2}|(season|sería|seria)( )*[0-9]+)'
-tv_pattern = ''
+season_pattern2 = 's[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season'
+season_pattern3 = '[0-9]+x[0-9]+'
+tv_pattern = '.+?(?=s[0-9])|.+?(?=season[0-9])|.+?(?=season)'
 
 ### MAIN CODE ###
 # Splitting src and dest for later use
-src_lst = src.split("\\")
-dest_lst = dest.split("\\")
+src_lst = src.split('\\')
+dest_lst = dest.split('\\')
 
 # Going through each file, checking for name and season,
 # creating paths and then moving/copying files to correct location
@@ -102,6 +106,7 @@ for root, dirs, files in os.walk(src):
                 path_to = os.path.join(dest, tvshow, season)
                 if not os.path.exists(path_to):
                     os.makedirs(path_to)
-                if not os.path.isfile(os.path.join(path_to, name)):
+                file_to = os.path.join(path_to, name)
+                if not os.path.isfile(file_to):
                     #shutil.copy(path_from, path_to)
                     shutil.move(path_from, path_to)
