@@ -104,6 +104,8 @@ for root, dirs, files in os.walk(src):
                 if not os.path.exists(final_dest):
                     os.makedirs(final_dest)
                 #print(final_dest)
+                if not os.path.isfile(final_dest + '\\' + name):
+                    print('YES')
                 shutil.move(path_from, final_dest)
             #                print(path_from)
             #                shutil.move(path_from, dest)
