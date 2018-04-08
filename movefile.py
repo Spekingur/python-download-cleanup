@@ -1,6 +1,12 @@
 import argparse, shutil, re, os
 
 
+def testPath(path):
+    t_path = path.split('\\')
+    tstp = [item for item in t_path if item not in src_lst]
+    return tstp
+
+
 def findTVname(path):
     tvsplit = path.split('\\')
     tvs = [item for item in tvsplit if item not in src_lst]
@@ -127,24 +133,31 @@ for root, dirs, files in os.walk(src):
             if re.search(season_pattern, pf_lower):
                 #    d_lst = []
                 #    countseason += 1
-                tvshow = findTVname(pf_lower)  # USE THIS
+                #tvshow = findTVname(pf_lower)  # USE THIS
                 #    d_lst.append(tvshow)
-                season = findSeasonNumber(pf_lower)  # USE THIS
+                #season = findSeasonNumber(pf_lower)  # USE THIS
                 #    d_lst.append(season)
                 #    dlst = dest_lst + d_lst
                 #print(dest_lst)
                 #print(d_lst)
                 #print('\\'.join(dlst))
                 #    final_dest = '\\'.join(dlst)
-                dest_test = os.path.join(dest, tvshow, season)  # USE THIS
+                #dest_test = os.path.join(dest, tvshow, season)  # USE THIS
+                tstpth = testPath(path_from)
+                dest_test = os.path.join(dest, *tstpth)
+                #print(path_from)
+                #print(dest_test)
+                shutil.move(path_from, dest_test)
                 #print(final_dest)
                 #print(dest_test)
-                if not os.path.exists(dest_test):
-                    os.makedirs(dest_test)
+                #if not os.path.exists(dest_test):
+                #    os.makedirs(dest_test)
                 #print(final_dest)
-                if not os.path.isfile(os.path.join(dest_test, name)):
-                    #    shutil.copy(path_from, final_dest)
-                    shutil.move(path_from, dest_test)
+                #if not os.path.isfile(os.path.join(dest_test, name)):
+                #    shutil.copy(path_from, dest_test)
+                #    shutil.move(path_from, dest_test)
+                #shutil.move(path_from, dest)
+
             #                print(path_from)
             #                shutil.move(path_from, dest)
 #                shutil.copy(path_from, dest)
