@@ -1,0 +1,125 @@
+import os, sys
+import re
+import shutil
+from pathlib import Path
+
+def breakUp(name):
+    show = name.split("\\")
+    temp = show.pop()
+ #   print(temp)
+    fileName = temp
+
+    # FILTER SAMPLES OUT
+    if("sample" in temp):
+        return;
+   # print (temp)
+
+    #GET SHOW SEASON
+    seasonPattern = "s[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season"
+    _seasonNr = ""
+    _seasonNr = re.search(seasonPattern,temp)  # FIRST DEPTH
+    if(_seasonNr == None):
+        temp = show.pop()
+        _seasonNr = re.search(seasonPattern, temp) # SECOND DEPTH
+        if (_seasonNr != None):
+            _seasonNr = _seasonNr.group(0)
+         #   print("The SEASON: ", _seasonNr)
+        elif (_seasonNr == None):
+            temp = show.pop()
+            _seasonNr = re.search(seasonPattern, temp) # THIRD DEPTH
+            if (_seasonNr != None):
+                _seasonNr = _seasonNr.group(0)
+              #  print("The SEASON: ", _seasonNr)
+    else:
+        _seasonNr = _seasonNr.group(0)
+     #   print("The SEASON: ", _seasonNr)
+
+    #GET SHOW NAME
+    show = name.split("\\")
+    temp = show.pop()
+    namePattern = ".+?(?=s[0-9])|.+?(?=season[0-9])|.+?(?=season)"
+    _showName = ""
+    _showName = re.search(namePattern, temp) # FIRST DEPTH
+    if (_showName == None or _showName.group(0).startswith('s0')):
+        temp = show.pop()
+        _showName = re.search(namePattern, temp) # SECOND DEPTH
+        if(_showName != None):
+            _showName = _showName.group(0)
+          #  print("The Shows NAME: ", _showName)
+        elif (_showName == None or _showName.group(0).startswith('season') or _showName.group(0).startswith('episode')):
+            if(show):
+                temp = show.pop()
+                if(show.pop() == "downloads"):
+                    _showName = temp
+                 #   print("The Shows NAME: ", temp)
+                else:
+                    _showName = re.search(namePattern, temp)# THIRD DEPTH
+                    if (_showName != None):
+                        _showName = _showName.group(0)
+                    #    print("The Shows NAME: ", _showName)
+    else:
+        _showName = _showName.group(0)
+     #   print("The Shows NAME: ", _showName)
+
+    # NORMALIZE SHOWS NAME
+    if(_showName != None):
+        _showName = normalizeShowName(_showName)        #NORMALIZE SHOWS NAME
+
+    # NORMALIZE SEASONS NAME
+    if (_seasonNr != None):
+        _seasonNr = normalizeSeason(_seasonNr)          #NORMALIZE SEASONS NAME
+
+    #CREATE APPROPRIATE STRUCTURE
+    if (_showName != None and _seasonNr != None):
+        dst_test = os.path.join(sys.argv[2], _showName, _seasonNr)
+        if not os.path.exists(dst_test):
+            os.makedirs(dst_test)
+        if not os.path.isfile(os.path.join(dst_test, fileName)):
+            shutil.move(name, dst_test)
+
+
+    # PRINTS SHOWS NAME THE SEASON AND THE FILES NAME
+    print("FULL NAME: ",_showName, " ", _seasonNr, " ", fileName)
+
+def normalizeShowName(showName):
+    dotRemoved = showName.replace(".", " ")     #Removes .
+    dashRemoved = dotRemoved.replace("-", " ")  #Removes -
+    dattRemoved = dashRemoved.replace("'", "")  #Removes '
+    _removed =  dattRemoved.replace("_", " ")   #Removes _
+    while(_removed.endswith(" ")):              #Removes spaces after TV Shows name
+        _removed = _removed[:-1]
+    titled = _removed.title()                   #Capitalizes letters
+    return titled
+
+def normalizeSeason(season):
+    romanPattern = ('i')
+    if(season.endswith(romanPattern)):
+        season = 'Season 0' + '1'
+    else:
+        season_number = ''.join(
+            [season[i] for i in range(len(season)) if season[i].isdigit()])
+        if 0 < len(season_number) < 2:
+            season = 'Season 0' + season_number
+        else:
+            season = 'Season ' + season_number
+    return season
+
+def test():
+    src = sys.argv[1]
+    createDestinationDir()
+    pattern = "(.mp4|.avi|.mkv|.wmv|.flv)$"
+    for src, dirs, files in os.walk(src):
+        for name in files:
+            name = str(name)
+            name = os.path.abspath(os.path.join(src, name))
+            name = name.lower()
+            if re.search(pattern, name):
+                if re.search('s[0-9]{2}e[0-9]{2}|season', name):
+                    breakUp(name)
+
+def createDestinationDir():
+    if not os.path.exists(sys.argv[2]):
+        os.makedirs(sys.argv[2])
+
+
+test();
