@@ -10,7 +10,7 @@ def findTVname(path):
     for each in tvfnsplit:
         if re.match('s[0-9]', each):
             break
-        each = each.replace(' ', '')
+        #each = each.replace(' ', '')
         #print(each)
         if each:
             tvname.append(each)
@@ -26,21 +26,24 @@ def findTVname(path):
 def findSeasonNumber(path):
     seasonsplit = path.split('\\')
     season_s = [item for item in seasonsplit if item not in src_lst]
-    seasonfilename = season_s[-1]
-    seasondir = season_s[:-1]
+    season_number = seasonDirWalk(season_s)
+    #seasonfilename = season_s[-1]
+    #seasondir = season_s[:-1]
     #print(seasonfilename)
     #print(seasondir)
     #m = re.search('s[0-9]{1,2}', seasonfilename)
-    m = re.search(season_pattern, seasonfilename)
-    if m:
-        found = m.group(0)
-        season_number = ''.join(
-            [found[i] for i in range(len(found)) if found[i].isdigit()])
-        #print(found)
-    else:
-        season_number = seasonDirWalk(seasondir)
-        if not season_number:
-            season_number = '9000'
+    #m = re.search(season_pattern, seasonfilename)
+    #if m:
+    #    found = m.group(0)
+    #    season_number = ''.join(
+    #        [found[i] for i in range(len(found)) if found[i].isdigit()])
+    #print(found)
+    #else:
+    #    season_number = seasonDirWalk(seasondir)
+    #    if not season_number:
+    #        season_number = '9000'
+    if not season_number:
+        season_number = '9000'
 
     if 0 < len(season_number) < 2:
         season = 'Season 0' + season_number
@@ -68,14 +71,19 @@ def seasonDirWalk(season_list):
 parser = argparse.ArgumentParser(
     description='Moves files and folders to a new location.')
 parser.add_argument(
-    'paths',
-    metavar='PATH',
-    nargs=2,
-    help='a path where files will be moved from and to')
+    'pathfrom',
+    metavar='PATHFROM',
+    nargs=1,
+    help='a path where files will be moved from')
+parser.add_argument(
+    'pathto',
+    metavar='PATHTO',
+    nargs=1,
+    help='a path where files will be moved to')
 
 args = parser.parse_args()
-src = args.paths[0]
-dest = args.paths[1]
+src = args.pathfrom[0]
+dest = args.pathto[0]
 
 #if os.path.exists(dest):
 #    shutil.rmtree(dest)
@@ -129,14 +137,14 @@ for root, dirs, files in os.walk(src):
                 #print('\\'.join(dlst))
                 final_dest = '\\'.join(dlst)
                 dest_test = os.path.join(dest, tvshow, season)  # USE THIS
-                print(final_dest)
-                print(dest_test)
-                if not os.path.exists(final_dest):
-                    os.makedirs(final_dest)
                 #print(final_dest)
-                if not os.path.isfile(final_dest + '\\' + name):
-                    shutil.copy(path_from, final_dest)
-                #    shutil.move(path_from, final_dest)
+                #print(dest_test)
+                if not os.path.exists(dest_test):
+                    os.makedirs(dest_test)
+                #print(final_dest)
+                if not os.path.isfile(os.path.join(dest_test, name)):
+                    #    shutil.copy(path_from, final_dest)
+                    shutil.move(path_from, dest_test)
             #                print(path_from)
             #                shutil.move(path_from, dest)
 #                shutil.copy(path_from, dest)
