@@ -10,7 +10,11 @@ def findTVname(path):
     for each in tvfnsplit:
         if re.match('s[0-9]', each):
             break
-        tvname.append(each)
+        each = each.replace(' ', '')
+        #print(each)
+        if each:
+            tvname.append(each)
+        #print(tvname)
     final_tvname = ' '.join(tvname).title()
     #print(tvsplit)
     #print(tvs)
@@ -23,14 +27,20 @@ def findSeasonNumber(path):
     seasonsplit = path.split('\\')
     season_s = [item for item in seasonsplit if item not in src_lst]
     seasonfilename = season_s[-1]
-    m = re.search('s[0-9]{1,2}', seasonfilename)
+    seasondir = season_s[:-1]
+    #print(seasonfilename)
+    #print(seasondir)
+    #m = re.search('s[0-9]{1,2}', seasonfilename)
+    m = re.search(season_pattern, seasonfilename)
     if m:
         found = m.group(0)
         season_number = ''.join(
             [found[i] for i in range(len(found)) if found[i].isdigit()])
         #print(found)
     else:
-        season_number = '9000'
+        season_number = seasonDirWalk(seasondir)
+        if not season_number:
+            season_number = '9000'
 
     if 0 < len(season_number) < 2:
         season = 'Season 0' + season_number
@@ -39,6 +49,20 @@ def findSeasonNumber(path):
     #print(seasonsplit)
     #print(season)
     return season
+
+
+def seasonDirWalk(season_list):
+    if not season_list:
+        return ''
+    else:
+        seasoncheck = season_list[-1]
+        m = re.search(season_pattern, seasoncheck)
+        if m:
+            found = m.group(0)
+            return ''.join(
+                [found[i] for i in range(len(found)) if found[i].isdigit()])
+        else:
+            seasonDirWalk(season_list[:-1])
 
 
 parser = argparse.ArgumentParser(
@@ -52,6 +76,9 @@ parser.add_argument(
 args = parser.parse_args()
 src = args.paths[0]
 dest = args.paths[1]
+
+#if os.path.exists(dest):
+#    shutil.rmtree(dest)
 
 video_pattern = "(.mp4|.avi|.mkv|.wmv|.flv)$"
 season_pattern = '(s[0-9]{1,2}|(season|sería|seria)( )*[0-9]+)'
@@ -92,21 +119,24 @@ for root, dirs, files in os.walk(src):
             if re.search(season_pattern, pf_lower):
                 d_lst = []
                 countseason += 1
-                tvshow = findTVname(pf_lower)
+                tvshow = findTVname(pf_lower)  # USE THIS
                 d_lst.append(tvshow)
-                season = findSeasonNumber(pf_lower)
+                season = findSeasonNumber(pf_lower)  # USE THIS
                 d_lst.append(season)
                 dlst = dest_lst + d_lst
                 #print(dest_lst)
                 #print(d_lst)
                 #print('\\'.join(dlst))
                 final_dest = '\\'.join(dlst)
+                dest_test = os.path.join(dest, tvshow, season)  # USE THIS
+                print(final_dest)
+                print(dest_test)
                 if not os.path.exists(final_dest):
                     os.makedirs(final_dest)
                 #print(final_dest)
                 if not os.path.isfile(final_dest + '\\' + name):
-                    print('YES')
-                shutil.move(path_from, final_dest)
+                    shutil.copy(path_from, final_dest)
+                #    shutil.move(path_from, final_dest)
             #                print(path_from)
             #                shutil.move(path_from, dest)
 #                shutil.copy(path_from, dest)
