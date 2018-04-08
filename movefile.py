@@ -15,8 +15,8 @@ def findTVname(path):
     #print(tvsplit)
     #print(tvs)
     #print(tvfnsplit)
-    print(final_tvname)
-    return 'tv show'
+    #print(final_tvname)
+    return final_tvname
 
 
 def findSeasonNumber(path):
@@ -28,17 +28,17 @@ def findSeasonNumber(path):
         found = m.group(0)
         season_number = ''.join(
             [found[i] for i in range(len(found)) if found[i].isdigit()])
-        print(found)
+        #print(found)
     else:
         season_number = '9000'
-        
+
     if 0 < len(season_number) < 2:
         season = 'Season 0' + season_number
     else:
         season = 'Season ' + season_number
     #print(seasonsplit)
-    print(season)
-    return 'season 01'
+    #print(season)
+    return season
 
 
 parser = argparse.ArgumentParser(
@@ -61,8 +61,8 @@ src_lst = src.split("\\")
 dest_lst = dest.split("\\")
 #dest_lst = []
 
-if not os.path.exists(dest):
-    os.makedirs(dest)
+#if not os.path.exists(dest):
+#    os.makedirs(dest)
 
 countfiles = 0
 countvideo = 0
@@ -90,14 +90,21 @@ for root, dirs, files in os.walk(src):
             #if re.search('s[0-9]{2}', pf_lower) or re.search(
             #        'season( )*[0-9]+', pf_lower):
             if re.search(season_pattern, pf_lower):
+                d_lst = []
                 countseason += 1
                 tvshow = findTVname(pf_lower)
-                dest_lst.append(tvshow)
+                d_lst.append(tvshow)
                 season = findSeasonNumber(pf_lower)
-                dest_lst.append(season)
-                final_dest = '\\'.join(dest_lst)
+                d_lst.append(season)
+                dlst = dest_lst + d_lst
+                #print(dest_lst)
+                #print(d_lst)
+                #print('\\'.join(dlst))
+                final_dest = '\\'.join(dlst)
+                if not os.path.exists(final_dest):
+                    os.makedirs(final_dest)
                 #print(final_dest)
-                #shutil.move(path_from, final_dest)
+                shutil.move(path_from, final_dest)
             #                print(path_from)
             #                shutil.move(path_from, dest)
 #                shutil.copy(path_from, dest)
@@ -106,10 +113,10 @@ for root, dirs, files in os.walk(src):
 #shutil.copytree(path_from, path_to)
 #print(path_from)
 #print(path_to)
-print(countfiles)
-print(countvideo)
-print(countseason)
-print(samplecount)
+#print(countfiles)
+#print(countvideo)
+#print(countseason)
+#print(samplecount)
 
 #print(dest_lst)
 
