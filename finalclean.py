@@ -90,8 +90,11 @@ for root, dirs, files in os.walk(src):
         name = str(name)
         path_from = os.path.join(root, name)
         pf_lower = path_from.lower()
+        # Filter out non-video files and files with 'sample' in their name
+        # (samples are obviously not full videos)
         if re.search(video_pattern,
                      pf_lower) and not re.search('sample', pf_lower):
+            # Only work with those files that match season pattern(s)
             if re.search(season_pattern, pf_lower):
                 tvshow = findTVname(pf_lower)
                 season = findSeasonNumber(pf_lower)
