@@ -99,23 +99,23 @@ dest_lst = dest.split("\\")
 #if not os.path.exists(dest):
 #    os.makedirs(dest)
 
-countfiles = 0
-countvideo = 0
-countseason = 0
-samplecount = 0
+#countfiles = 0
+#countvideo = 0
+#countseason = 0
+#samplecount = 0
 
 for root, dirs, files in os.walk(src):
     for name in files:
-        countfiles += 1
+        #countfiles += 1
         #print(root.split('\\')[-1:])
         name = str(name)
         path_from = os.path.join(root, name)
         pf_lower = path_from.lower()
         if re.search(video_pattern,
                      pf_lower) and not re.search('sample', pf_lower):
-            if re.search('sample', pf_lower):
-                samplecount += 1
-            countvideo += 1
+            #if re.search('sample', pf_lower):
+            #    samplecount += 1
+            #countvideo += 1
             #            dest_lst = path_from.split("\\")
             #            print(dest_lst)
             #            dest_lst[0] = dest
@@ -125,17 +125,17 @@ for root, dirs, files in os.walk(src):
             #if re.search('s[0-9]{2}', pf_lower) or re.search(
             #        'season( )*[0-9]+', pf_lower):
             if re.search(season_pattern, pf_lower):
-                d_lst = []
-                countseason += 1
+                #    d_lst = []
+                #    countseason += 1
                 tvshow = findTVname(pf_lower)  # USE THIS
-                d_lst.append(tvshow)
+                #    d_lst.append(tvshow)
                 season = findSeasonNumber(pf_lower)  # USE THIS
-                d_lst.append(season)
-                dlst = dest_lst + d_lst
+                #    d_lst.append(season)
+                #    dlst = dest_lst + d_lst
                 #print(dest_lst)
                 #print(d_lst)
                 #print('\\'.join(dlst))
-                final_dest = '\\'.join(dlst)
+                #    final_dest = '\\'.join(dlst)
                 dest_test = os.path.join(dest, tvshow, season)  # USE THIS
                 #print(final_dest)
                 #print(dest_test)
