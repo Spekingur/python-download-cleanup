@@ -26,6 +26,14 @@ for root, dirs, files in os.walk('.'):
         name = str(name)
         name = os.path.join(root, name)
         if re.search(pattern, name):
+            print(name)
+
+pattern = "(.mp4|.avi|.mkv|.wmv|.flv)$"
+for root, dirs, files in os.walk('.'):
+    for name in files:
+        name = str(name)
+        name = os.path.join(root, name)
+        if re.search(pattern, name):
             if re.search('(S|s)[0-9]{2}', name.lower()):
                 print(name.lower())
 
@@ -91,3 +99,25 @@ for root, dirs, files in os.walk('.'):
 #    to = 'sorted'
 
 # afrita frekar en að færa
+
+str1 = 's03'
+str2 = 's1'
+str3 = 'season 1'
+
+season_number = ''.join(
+    [str1[i] for i in range(len(str1)) if str1[i].isdigit()])
+if 0 < len(season_number) < 2:
+    season = 'Season 0' + season_number
+else:
+    season = 'Season ' + season_number
+
+#and re.search('^(?!sample)', pf_lower)
+
+tvname = []
+filename = '8.out.of.10.cats.s03e07.pdtv.xvid-ttt.avi'
+fsplit = filename.split('.')
+for each in fsplit:
+    if re.match('s0', each):
+        break
+    tvname.append(each)
+print(tvname)
