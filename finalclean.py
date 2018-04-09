@@ -30,7 +30,7 @@ dest = args.pathto[0]
 ### FUNCTION DEFINITIONS ###
 # Definition parses through filename and tries to find a tv show name
 def findTVname(path):
-    tvsplit = path.split('\\')
+    tvsplit = os.path.normpath(path).split(os.sep)
     tvs = [item for item in tvsplit if item not in src_lst]
     tvfilename = tvs[-1]
     tvfnsplit = tvfilename.split('.')
@@ -49,7 +49,7 @@ def findTVname(path):
 # This definition delivers a list to seasonDirWalk to receive a possible season number
 # Returns: String saying Season (some number)
 def findSeasonNumber(path):
-    seasonsplit = path.split('\\')
+    seasonsplit = os.path.normpath(path).split(os.sep)
     season_s = [item for item in seasonsplit if item not in src_lst]
     season_number = seasonDirWalk(season_s)
     if not season_number:
@@ -86,8 +86,8 @@ tv_pattern = '.+?(?=s[0-9])|.+?(?=season[0-9])|.+?(?=season)'
 
 ### MAIN CODE ###
 # Splitting src and dest for later use
-src_lst = src.split('\\')
-dest_lst = dest.split('\\')
+src_lst = os.path.normpath(src).split(os.sep)
+dest_lst = os.path.normpath(dest).split(os.sep)
 
 # Going through each file, checking for name and season,
 # creating paths and then moving/copying files to correct location
