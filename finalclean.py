@@ -32,26 +32,61 @@ dest = args.pathto[0]
 def findTVname(path):
     tvsplit = os.path.normpath(path).split(os.sep)
     tvs = [item for item in tvsplit if item not in src_lst]
-    tvfilename = tvs[-1]
-    tvfnsplit = tvfilename.split('.')
-    tvname = []
-    for each in tvfnsplit:
-        if re.match('s[0-9]', each):
-            break
-        if each:
-            tvname.append(each)
-    if not tvname:
-        tvname = ['test']
-    final_tvname = ' '.join(tvname).title()
+    tvlist = tvs[:-1]
+    tvfilename = ''.join(tvs[-1])
+    final_tvname = tvDirWalk(path, tvlist, tvfilename)
+    #tvfnsplit = tvfilename.split('.')
+    #tvname = []
+    #for each in tvfnsplit:
+    #    if re.match('s[0-9]', each):
+    #        break
+    #    if each:
+    #        tvname.append(each)
+    #if not tvname:
+    #    tvname = ['test']
+    #final_tvname = ' '.join(tvname).title()
     return final_tvname
+
+
+def tvDirWalk(path, tv_list, filename):
+    found = 'test'
+    tvname = ''
+    if not tv_list:
+        m = re.search(tv_pattern, filename)
+        if m:
+            found = m.group(0)
+        else:
+            found = 'unknown'
+    else:
+        tvcheck = ''.join(tv_list[:1])
+        if re.search(season_pattern, tvcheck):
+            m = re.search(tv_pattern, tvcheck)
+            if m:
+                found = m.group(0)
+            else:
+                tvDirWalk(path, tv_list[1:], filename)
+        else:
+            found = tvcheck
+    tvname = found.replace("'",
+                           "").replace('.', ' ').replace('-', ' ').replace(
+                               '_', ' ').replace(',', ' ').strip().title()
+    print(found)
+    print(tvname)
+    return tvname
 
 
 # This definition delivers a list to seasonDirWalk to receive a possible season number
 # Returns: String saying Season (some number)
 def findSeasonNumber(path):
     seasonsplit = os.path.normpath(path).split(os.sep)
-    season_s = [item for item in seasonsplit if item not in src_lst]
-    season_number = seasonDirWalk(season_s)
+    templist = [item for item in seasonsplit if item not in src_lst]
+    dirlist = templist[:-1]
+    filename = templist[-1]
+    season_number = seasonDirWalk(path, dirlist, filename)
+    return createSeasonNumber(season_number)
+
+
+def createSeasonNumber(season_number):
     if not season_number:
         season_number = '9000'
     if 0 < len(season_number) < 2:
@@ -63,26 +98,32 @@ def findSeasonNumber(path):
 
 # Goes through the list from findSeasonNumber to find which the file might belong to
 # Returns: A number
-def seasonDirWalk(season_list):
+def seasonDirWalk(path, season_list, filename):
+    found = ''
     if not season_list:
-        return ''
+        m = re.search(season_pattern, filename)
+        if m:
+            found = m.group(0)
+        else:
+            return ''
     else:
         seasoncheck = season_list[-1]
         m = re.search(season_pattern, seasoncheck)
         if m:
             found = m.group(0)
-            return ''.join(
-                [found[i] for i in range(len(found)) if found[i].isdigit()])
+            if re.search(season_pattern3, found):
+                found = found[:2]
         else:
-            seasonDirWalk(season_list[:-1])
+            seasonDirWalk(path, season_list[:-1], filename)
+    return ''.join([found[i] for i in range(len(found)) if found[i].isdigit()])
 
 
 ### PATTERNS ###
-video_pattern = '(.mp4|.avi|.mkv|.wmv|.flv)$'
-season_pattern = '(s[0-9]{1,2}|(season|sería|seria)( )*[0-9]+)'
+video_pattern = '(.mp4|.avi|.mkv|.wmv|.flv|.rm)$'
+season_pattern = '(s[0-9]{1,2})|((season|sería|seria)[ .-]*[0-9]{1,2})|([0-9]{1,2}[ ]*.[ ]*(season|sería|seria))|([0-9]+x[0-9]+)'
 season_pattern2 = 's[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season'
 season_pattern3 = '[0-9]+x[0-9]+'
-tv_pattern = '.+?(?=s[0-9])|.+?(?=season[0-9])|.+?(?=season)'
+tv_pattern = '.*?(?=s[0-9])|.+?(?=season( )*[0-9]+)'
 
 ### MAIN CODE ###
 # Splitting src and dest for later use
@@ -109,5 +150,5 @@ for root, dirs, files in os.walk(src):
                     os.makedirs(path_to)
                 file_to = os.path.join(path_to, name)
                 if not os.path.isfile(file_to):
-                    #shutil.copy(path_from, path_to)
-                    shutil.move(path_from, path_to)
+                    shutil.copy(path_from, path_to)
+                    #shutil.move(path_from, path_to)
