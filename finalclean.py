@@ -48,7 +48,10 @@ def findTVname(path):
     return final_tvname
 
 
+# Walks through the directories to find name of tv show
 def tvDirWalk(path, tv_list, filename):
+    # if it doesn't find anything then it puts it into test folder
+    # used to see what might be going wrong
     found = 'test'
     tvname = ''
     if not tv_list:
@@ -56,7 +59,7 @@ def tvDirWalk(path, tv_list, filename):
         if m:
             found = m.group(0)
         else:
-            found = 'unknown'
+            found = 'unknown'  # used for testing
     else:
         tvcheck = ''.join(tv_list[:1])
         if re.search(season_pattern, tvcheck):
@@ -67,11 +70,12 @@ def tvDirWalk(path, tv_list, filename):
                 tvDirWalk(path, tv_list[1:], filename)
         else:
             found = tvcheck
-    tvname = found.replace("'",
-                           "").replace('.', ' ').replace('-', ' ').replace(
-                               '_', ' ').replace(',', ' ').strip().title()
-    print(found)
-    print(tvname)
+    tvname = re.sub(r'\s{2,}', ' ',
+                    found.replace("'", "").replace(
+                        '.', ' ').replace('-', ' ').replace('_', ' ').replace(
+                            ',', ' ').strip().title())
+    #print(found)
+    #print(tvname)
     return tvname
 
 
@@ -81,14 +85,15 @@ def findSeasonNumber(path):
     seasonsplit = os.path.normpath(path).split(os.sep)
     templist = [item for item in seasonsplit if item not in src_lst]
     dirlist = templist[:-1]
-    filename = templist[-1]
+    filename = ''.join(templist[-1])
+    #print(filename)
     season_number = seasonDirWalk(path, dirlist, filename)
     return createSeasonNumber(season_number)
 
 
 def createSeasonNumber(season_number):
     if not season_number:
-        season_number = '9000'
+        season_number = '9000'  # for testing, if regex is missing something
     if 0 < len(season_number) < 2:
         season = 'Season 0' + season_number
     else:
@@ -102,25 +107,38 @@ def seasonDirWalk(path, season_list, filename):
     found = ''
     if not season_list:
         m = re.search(season_pattern, filename)
+        #print(filename)
         if m:
             found = m.group(0)
         else:
             return ''
+        #if 'dine' in filename:
+        #    print("file ", filename)
+        #    print("found ", found)
+        #    print("m ", m)
     else:
-        seasoncheck = season_list[-1]
+        seasoncheck = ''.join(season_list[-1])
         m = re.search(season_pattern, seasoncheck)
         if m:
             found = m.group(0)
-            if re.search(season_pattern3, found):
-                found = found[:2]
         else:
             seasonDirWalk(path, season_list[:-1], filename)
+    #print(found)
+    if re.search(season_pattern3, found):
+        found = found[:2]
+    #test = ''.join([found[i] for i in range(len(found)) if found[i].isdigit()])
+    # used to analyze faults with seasons, sometimes regex doesn't find what I want it to find
+    #if 'dine' in filename:
+    #    print("file ", filename)
+    #    print("found ", found)
+    #    print("test ", test)
+    #    print("m ", m)
     return ''.join([found[i] for i in range(len(found)) if found[i].isdigit()])
 
 
 ### PATTERNS ###
 video_pattern = '(.mp4|.avi|.mkv|.wmv|.flv|.rm)$'
-season_pattern = '(s[0-9]{1,2})|((season|sería|seria)[ .-]*[0-9]{1,2})|([0-9]{1,2}[ ]*.[ ]*(season|sería|seria))|([0-9]+x[0-9]+)'
+season_pattern = r's[0-9]{1,2}|(season|sería|seria)[\s.\-_]*[0-9]{1,2}|[0-9]{1,2}.[\s]*(season|sería|seria)|[0-9]+x[0-9]+'
 season_pattern2 = 's[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season'
 season_pattern3 = '[0-9]+x[0-9]+'
 tv_pattern = '.*?(?=s[0-9])|.+?(?=season( )*[0-9]+)'
