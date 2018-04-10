@@ -58,6 +58,9 @@ def tvDirWalk(path, tv_list, filename):
         m = re.search(tv_pattern, filename)
         if m:
             found = m.group(0)
+            n = re.search(tv_pattern2, found)
+            if n:
+                found = n.group(0)
         else:
             found = 'unknown'  # used for testing
     else:
@@ -66,13 +69,21 @@ def tvDirWalk(path, tv_list, filename):
             m = re.search(tv_pattern, tvcheck)
             if m:
                 found = m.group(0)
+                n = re.search(tv_pattern2, found)
+                if n:
+                    found = n.group(0)
             else:
-                tvDirWalk(path, tv_list[1:], filename)
+                return tvDirWalk(path, tv_list[1:], filename)
         else:
-            found = tvcheck
+            m = re.search(tv_pattern2, tvcheck)
+            if m:
+                found = m.group(0)
+            else:
+                found = tvcheck
+    tvname = re.sub(r'\[.*?\]', ' ', found)
     tvname = re.sub(r'\s{2,}', ' ',
-                    found.replace("'", "").replace(
-                        '.', ' ').replace('-', ' ').replace('_', ' ').replace(
+                    tvname.replace("'", "").replace('.', ' ').replace(
+                        '-', ' ').replace('_', ' ').replace(
                             ',', ' ').strip().title())
     #print(found)
     #print(tvname)
@@ -124,15 +135,16 @@ def seasonDirWalk(path, season_list, filename):
             return ''.join(
                 [found[i] for i in range(len(found)) if found[i].isdigit()])
         else:
-            seasonDirWalk(path, season_list[:-1], filename)
+            return seasonDirWalk(path, season_list[:-1], filename)
 
 
 ### PATTERNS ###
 video_pattern = '(.mp4|.avi|.mkv|.wmv|.flv|.rm)$'
-season_pattern = r's[0-9]{1,2}|(season|sería|seria)[\s.\-_]*[0-9]{1,2}|[0-9]{1,2}.[\s]*(season|sería|seria)|[0-9]+x[0-9]+'
+season_pattern = r's[0-9]{1,2}|(season|sería|seria)[\s.\-_]*[0-9]{1,2}|[0-9]{1,2}\.[\s]*(season|sería|seria)|[0-9]{1,2}x[0-9]{1,2}'
 season_pattern2 = 's[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season'
 season_pattern3 = '[0-9]+x[0-9]+'
-tv_pattern = r'.*?(?=s[0-9])|.+?(?=season( )*[0-9]+)|(.*?)\s*(?=\()'
+tv_pattern = r'.*?(?=s[0-9])|.+?(?=season( )*[0-9]+)|.+?(?=[0-9]{1,2}x[0-9]{1,2})'  #|.*?\s*(?=\()|.*?\s*(?=\-)
+tv_pattern2 = r'.*?\s*(?=\()|.*?\s*(?=\-)'
 
 ### MAIN CODE ###
 # Splitting src and dest for later use
