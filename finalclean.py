@@ -102,38 +102,29 @@ def createSeasonNumber(season_number):
 
 
 # Goes through the list from findSeasonNumber to find which the file might belong to
-# Returns: A number
+# Returns: A string to be filtered
 def seasonDirWalk(path, season_list, filename):
-    found = ''
     if not season_list:
         m = re.search(season_pattern, filename)
-        #print(filename)
         if m:
             found = m.group(0)
+            if re.search(season_pattern3, found):
+                found = found[:2]
+            return ''.join(
+                [found[i] for i in range(len(found)) if found[i].isdigit()])
         else:
             return ''
-        #if 'dine' in filename:
-        #    print("file ", filename)
-        #    print("found ", found)
-        #    print("m ", m)
     else:
         seasoncheck = ''.join(season_list[-1])
         m = re.search(season_pattern, seasoncheck)
         if m:
             found = m.group(0)
+            if re.search(season_pattern3, found):
+                found = found[:2]
+            return ''.join(
+                [found[i] for i in range(len(found)) if found[i].isdigit()])
         else:
             seasonDirWalk(path, season_list[:-1], filename)
-    #print(found)
-    if re.search(season_pattern3, found):
-        found = found[:2]
-    #test = ''.join([found[i] for i in range(len(found)) if found[i].isdigit()])
-    # used to analyze faults with seasons, sometimes regex doesn't find what I want it to find
-    #if 'dine' in filename:
-    #    print("file ", filename)
-    #    print("found ", found)
-    #    print("test ", test)
-    #    print("m ", m)
-    return ''.join([found[i] for i in range(len(found)) if found[i].isdigit()])
 
 
 ### PATTERNS ###
@@ -141,7 +132,7 @@ video_pattern = '(.mp4|.avi|.mkv|.wmv|.flv|.rm)$'
 season_pattern = r's[0-9]{1,2}|(season|sería|seria)[\s.\-_]*[0-9]{1,2}|[0-9]{1,2}.[\s]*(season|sería|seria)|[0-9]+x[0-9]+'
 season_pattern2 = 's[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season'
 season_pattern3 = '[0-9]+x[0-9]+'
-tv_pattern = '.*?(?=s[0-9])|.+?(?=season( )*[0-9]+)'
+tv_pattern = r'.*?(?=s[0-9])|.+?(?=season( )*[0-9]+)|(.*?)\s*(?=\()'
 
 ### MAIN CODE ###
 # Splitting src and dest for later use
