@@ -1,0 +1,116 @@
+import os, sys
+import re
+import shutil
+
+def getSeason(name):
+    show = os.path.normpath(name).split(os.sep)
+    temp = show.pop()
+
+    # FILTER SAMPLES OUT
+    if ("sample" in temp):
+        return;
+
+    # GET SHOW SEASON
+    seasonPattern = "s[0-9][0-9]|s[0-9]|season [0-9]*[0-9]|season i|[0-9]. season"
+    _seasonNr = re.search(seasonPattern, temp)
+    if(_seasonNr != None):
+        _seasonNr = _seasonNr.group(0)
+    else:
+        while(_seasonNr == None and show):
+            temp = show.pop()
+            _seasonNr = re.search(seasonPattern, temp)
+            if(show == sys.argv[1]):
+                _seasonNr = temp
+                break;
+            if(_seasonNr != None):
+                _seasonNr = _seasonNr.group(0)
+
+    # NORMALIZE SEASONS NAME
+    if (_seasonNr != None):
+        _seasonNr = normalizeSeason(_seasonNr)          #NORMALIZE SEASONS NAME
+        return _seasonNr;
+    else:
+        return None;
+
+def getTvShowName(name):
+    show = os.path.normpath(name).split(os.sep)
+    temp = show.pop()
+
+    # FILTER SAMPLES OUT
+    if ("sample" in temp):
+        return;
+
+    namePattern = ".+?(?=s[0-9])|.+?(?=season[0-9])|.+?(?=season)"
+    _showName = re.search(namePattern, temp)
+    if(_showName != None):
+        _showName = _showName.group(0)
+    else:
+        while(_showName == None and show):
+            temp = show.pop()
+            _showName = re.search(namePattern, temp)
+            if (show == sys.argv[1]):
+                _showName = temp
+                break;
+            if(_showName != None):
+                _showName = _showName.group(0)
+
+
+    if(_showName != None):
+        _showName = normalizeShowName(_showName)        #NORMALIZE SHOWS NAME
+        return _showName
+    else:
+        return None;
+
+
+def moveFiles(season, showName, fullName):
+    fileName = os.path.normpath(fullName).split(os.sep).pop()
+    dst = sys.argv[2] + "/" + showName + "/" + season  # MAKING THIS MOOSHAK COMPATIBLE(/BOX PERMISSION DENIED)
+    if not os.path.exists(dst):  # TEST IF DIRECTORY ALREADY EXISTS
+        os.makedirs(dst)
+    fullPath = dst + "/" + fileName
+    if not os.path.isfile(fullPath):  # TEST IF FILE ALREADY EXISTS
+        shutil.copy(fullName, dst)
+
+def normalizeShowName(showName):
+    finalname = showName.replace("'","").replace('.', ' ').replace('-', ' ').replace(
+                               '_', ' ').replace(',', ' ').replace("'", "").strip().title()
+
+    while(finalname.endswith(" ")):                                  #Removes spaces after TV Shows name
+        finalname = finalname[:-1]
+    while(finalname.startswith(" ")):                                #Removes spaces before TV Shows name
+        finalname = finalname[1:]
+    finalname = finalname.split(' ')
+    finalname = ' '.join([item for item in finalname if item]) #Removes too many white spaces so there is only one
+    return finalname
+
+def normalizeSeason(season):
+    romanPattern = ('i')
+    if(season.endswith(romanPattern)):
+        season = 'Season 0' + '1'
+    else:
+        season_number = ''.join(
+            [season[i] for i in range(len(season)) if season[i].isdigit()])
+        if 0 < len(season_number) < 2:
+            season = 'Season 0' + season_number
+        else:
+            season = 'Season ' + season_number
+    return season
+
+def test():
+    src = sys.argv[1]
+    pattern = "(.mp4|.avi|.mkv|.wmv|.flv|.rm)$"
+    videoPattern = "s[0-9]{2}e[0-9]{2}|season"
+    for src, dirs, files in os.walk(src):
+        for name in files:
+            name = str(name)
+            name = os.path.realpath(os.path.join(src, name))
+            fullName = os.path.abspath(os.path.join(src, name))
+            lowerName = name.lower()
+            if re.search(pattern, lowerName):
+                if re.search(videoPattern, lowerName):
+                    season = getSeason(lowerName)
+                    showName = getTvShowName(lowerName)
+                    if(season != None and showName != None):
+                        moveFiles(season, showName, fullName)
+
+test();
